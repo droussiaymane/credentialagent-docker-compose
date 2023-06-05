@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  velocity-mongo:
+    image: mongo:4.0.4
+    volumes:
+      - ./mongo:/data
+    ports:
+      - 27018:27017
+
+  credentialagent-migrations:
+    image: ghcr.io/velocitynetworkfoundation/credentialagent:testnet
+    env_file:
+      - .env
+    command: yarn migrate:up
+    restart: "no"
+    depends_on:
+      - velocity-mongo
+
+  credentialagent:
+    image: ghcr.io/velocitynetworkfoundation/credentialagent:testnet
+    env_file:
+      - .env
+    ports:
+      - 8080:3000
+    restart: on-failure
+    depends_on:
+      - credentialagent-migrations
+
